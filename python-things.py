@@ -1,8 +1,81 @@
 import json
 import pygame
+import sys
+
+def forca():
+    pygame.init()
+
+    # Set up the display
+    size = (400, 400)
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption("Jogo da Forca")
+
+    # Load the Hangman images
+    hangman_imgs = []
+    for i in range(7):
+        img = pygame.image.load(f"hangman{i}.png")
+        hangman_imgs.append(img)
+
+    # Set up the font
+    font = pygame.font.SysFont(None, 48)
+
+    # Set up the game variables
+    word = "hangman"
+    guessed_word = "_" * len(word)
+    incorrect_guesses = 0
+
+    # Main game loop
+    running = True
+    while running:
+        # Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Draw the screen
+        screen.fill((255, 255, 255))
+        
+        # Draw the Hangman figure
+        screen.blit(hangman_imgs[incorrect_guesses], (0, 0))
+        
+        # Draw the word to be guessed
+        text = font.render(guessed_word, True, (0, 0, 0))
+
+        screen.blit(text, (size[0]//2 - text.get_width()//2, size[1]//2 + hangman_imgs[0].get_height() // 2))
+
+        # Check for user input
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.unicode.isalpha():
+                    # Check if the letter is in the word
+                    if event.unicode in word:
+                        for i, letter in enumerate(word):
+                            if letter == event.unicode:
+                                guessed_word = guessed_word[:i] + letter + guessed_word[i+1:]
+                    else:
+                        incorrect_guesses += 1
+
+        # Check if the game is over
+        if guessed_word == word:
+            text = font.render("You win!", True, (0, 255, 0))
+            screen.blit(text, (size[0]//2 - text.get_width()//2, size[1]//2 + 50))
+            running = False
+        elif incorrect_guesses == len(hangman_imgs)-1:
+            text = font.render("You lose!", True, (255, 0, 0))
+            screen.blit(text, (size[0]//2 - text.get_width()//2, size[1]//2 + 50))
+            running = False
+
+        # Update the display
+        pygame.display.update()
+
+    pygame.quit()
 
 def galo():
     pygame.init()
+
+    pygame.display.set_caption("Jogo do Galo")
 
     grid_width, grid_height = 3, 3
     square_size = 160
@@ -65,8 +138,12 @@ def galo():
                     board[row][col] = current_player
                     win_type, win_coords = check_win()
                     if win_coords is not None:
-                        print(f"Player {current_player + 1} wins!")
+
+                        # Create a new window to display the winning message
+                        win_message = f"Player {current_player + 1} wins!"
+                        print(win_message)
                         running = False
+                    
                     current_player = (current_player + 1) % 2
 
         # Draw the grid
@@ -82,25 +159,30 @@ def galo():
 
         # Draw the winning line
         if win_coords is not None:
+            #line_color = (255, 0, 0) if win_coords == 'blue' else (0, 0, 255)
+            line_color = 'yellow'
             if win_type == 'row':
                 y = win_coords[0][0] * square_size + square_size // 2
-                pygame.draw.line(screen, (255, 0, 0), (0, y), (screen_width, y), 5)
+                pygame.draw.line(screen, line_color, (0, y), (screen_width, y), 5)
             elif win_type == 'col':
                 x = win_coords[0][1] * square_size + square_size // 2
-                pygame.draw.line(screen, (255, 0, 0), (x, 0), (x, screen_height), 5)
+                pygame.draw.line(screen, line_color, (x, 0), (x, screen_height), 5)
             elif win_type == 'diag':
-                pygame.draw.line(screen, (255, 0, 0), (0, 0), (screen_width, screen_height), 5)
+                pygame.draw.line(screen, line_color, (0, 0), (screen_width, screen_height), 5)
             elif win_type == 'rev_diag':
-                pygame.draw.line(screen, (255, 0, 0), (0, screen_height), (screen_width, 0), 5)
+                pygame.draw.line(screen, line_color, (0, screen_height), (screen_width, 0), 5)
 
         pygame.display.flip()
 
         clock.tick(60)
 
     pygame.quit()
+    sys.exit()
 
 def damas():
     pygame.init()
+
+    pygame.display.set_caption("Jogo das Damas")
 
     grid_width, grid_height = 8, 8
     square_size = 80
@@ -201,6 +283,7 @@ def damas():
         clock.tick(60)
 
     pygame.quit()
+    sys.exit()
 
 def conversor_js_py():
 
@@ -425,7 +508,8 @@ def show_menu():
         '13': 'Conversor de dados js - py',
         '14': 'Jogo das Damas',
         '15': 'Jogo do Galo',
-        '16': 'Saída'
+        '16': 'Jogo da Forca',
+        '17': 'Saída'
     }
 
     print('\n')
@@ -560,6 +644,8 @@ def menu():
         elif choice == '15':
             galo()
         elif choice == '16':
+            forca()
+        elif choice == '17':
             turn_off_program()
             break
         else:
